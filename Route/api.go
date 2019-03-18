@@ -32,6 +32,11 @@ func ConfigRoute() {
 	router.HandleFunc("/berita/{id}", Controller.DeleteBerita).Methods("DELETE")
 	router.HandleFunc("/berita/{id}/read", Controller.ReadBerita).Methods("GET")
 
+	router.HandleFunc("/suka", Controller.Suka).Methods("GET")
+	router.HandleFunc("/suka/like", Controller.LikeSuka).Methods("POST")
+	router.HandleFunc("/suka/unlike", Controller.UnLikeSuka).Methods("POST")
+	router.HandleFunc("/suka/{id}/berita", Controller.SukaWhereBerita).Methods("GET")
+
 	router.Use(Middleware.Apikey)
 
 	log.Fatal(http.ListenAndServe(":1234", router))

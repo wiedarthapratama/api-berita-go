@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"../Database"
@@ -199,6 +200,13 @@ func ReadBerita(w http.ResponseWriter, r *http.Request) {
 	defer database.Close()
 
 	err := database.QueryRow("select id, judul, isi, foto, terbaca, kategori_id, penulis_id from berita where id = ?", vars["id"]).Scan(&readBerita.Id, &readBerita.Judul, &readBerita.Isi, &readBerita.Foto, &readBerita.Terbaca, &readBerita.Kategori_id, &readBerita.Penulis_id)
+	Helper.LogError(err)
+
+	terbaca, err := strconv.Atoi(readBerita.Terbaca)
+	Helper.LogError(err)
+	hasil_baca := terbaca + 1
+
+	_, err = database.Exec("update berita set terbaca = ? where id = ?", hasil_baca, vars["id"])
 	Helper.LogError(err)
 
 	responseReadBerita.Status = 200
