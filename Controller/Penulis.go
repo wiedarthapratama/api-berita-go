@@ -11,42 +11,44 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Kategori(w http.ResponseWriter, r *http.Request) {
+func Penulis(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var (
-		kategori         Model.Kategori
-		arr_kategori     []Model.Kategori
-		responseKategori Model.ResponseKategori
+		penulis         Model.Penulis
+		arr_penulis     []Model.Penulis
+		responsePenulis Model.ResponsePenulis
 	)
 
 	database := Database.ConfigDatabase()
 	defer database.Close()
 
-	rows, err := database.Query("select id, nama from kategori")
+	rows, err := database.Query("select id, nama, email, password from penulis")
 	Helper.LogError(err)
 
 	for rows.Next() {
-		if err := rows.Scan(&kategori.Id, &kategori.Nama); err != nil {
+		if err := rows.Scan(&penulis.Id, &penulis.Nama, &penulis.Email, &penulis.Password); err != nil {
 			Helper.LogError(err)
 		} else {
-			arr_kategori = append(arr_kategori, kategori)
+			arr_penulis = append(arr_penulis, penulis)
 		}
 	}
 
-	responseKategori.Status = 200
-	responseKategori.Message = "Data Kategori"
-	responseKategori.Data = arr_kategori
+	responsePenulis.Status = 200
+	responsePenulis.Message = "Data Penulis"
+	responsePenulis.Data = arr_penulis
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(responseKategori)
+	json.NewEncoder(w).Encode(responsePenulis)
 }
 
-func AddKategori(w http.ResponseWriter, r *http.Request) {
+func AddPenulis(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type Input struct {
-		Nama string `json:"nama"`
+		Nama     string `json:"nama"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	var (
@@ -60,7 +62,7 @@ func AddKategori(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&In)
 	Helper.LogError(err)
 
-	_, err = database.Exec("insert into kategori (nama) values (?)", In.Nama)
+	_, err = database.Exec("insert into penulis (nama, email, password) values (?,?,?)", In.Nama, In.Email, Helper.HashAndSalt([]byte(In.Password)))
 	Helper.LogError(err)
 
 	status.Status = 200
@@ -70,13 +72,15 @@ func AddKategori(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(status)
 }
 
-func UpdateKategori(w http.ResponseWriter, r *http.Request) {
+func UpdatePenulis(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	vars := mux.Vars(r)
 
 	type Input struct {
-		Nama string `json:"nama"`
+		Nama     string `json:"nama"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	var (
@@ -90,7 +94,7 @@ func UpdateKategori(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&In)
 	Helper.LogError(err)
 
-	res, err := database.Exec("update kategori set nama = ? where id = ?", In.Nama, vars["id"])
+	res, err := database.Exec("update penulis set nama = ?, email = ?, password = ? where id = ?", In.Nama, In.Email, Helper.HashAndSalt([]byte(In.Password)), vars["id"])
 	Helper.LogError(err)
 
 	rowCnt, err := res.RowsAffected()
@@ -109,7 +113,7 @@ func UpdateKategori(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(status)
 }
 
-func DeleteKategori(w http.ResponseWriter, r *http.Request) {
+func DeletePenulis(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	vars := mux.Vars(r)
@@ -121,7 +125,7 @@ func DeleteKategori(w http.ResponseWriter, r *http.Request) {
 	database := Database.ConfigDatabase()
 	defer database.Close()
 
-	res, err := database.Exec("delete from kategori where id = ?", vars["id"])
+	res, err := database.Exec("delete from penulis where id = ?", vars["id"])
 	Helper.LogError(err)
 
 	rowCnt, err := res.RowsAffected()

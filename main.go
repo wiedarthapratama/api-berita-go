@@ -1,8 +1,8 @@
 package main
 
 import (
-	"berita/Database"
-	"berita/Route"
+	"./Database"
+	"./Route"
 
 	_ "github.com/go-sql-driver/mysql"
 )

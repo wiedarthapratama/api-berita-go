@@ -1,8 +1,9 @@
 package Database
 
 import (
-	"berita/Helper"
 	"database/sql"
+
+	"../Helper"
 )
 
 func ConfigDatabase() *sql.DB {

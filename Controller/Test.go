@@ -1,9 +1,10 @@
 package Controller
 
 import (
-	"berita/Model"
 	"encoding/json"
 	"net/http"
+
+	"../Model"
 )
 
 func Test(w http.ResponseWriter, r *http.Request) {
