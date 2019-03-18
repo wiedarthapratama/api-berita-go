@@ -1,0 +1,4 @@
+like terbanyak
+SELECT judul, SUM(jumlah_suka) AS total_suka FROM suka JOIN berita ON berita.id=suka.berita_id GROUP BY berita_id ORDER BY total_suka desc
+pembaca terbanyak
+SELECT * FROM berita ORDER BY terbaca DESC

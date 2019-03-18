@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"../Database"
@@ -147,4 +148,71 @@ func UpdateBerita(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(status)
+}
+
+func DeleteBerita(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	vars := mux.Vars(r)
+
+	var (
+		status Model.Status
+		berita Model.Berita
+	)
+
+	database := Database.ConfigDatabase()
+	defer database.Close()
+
+	err := database.QueryRow("select foto from berita where id = ?", vars["id"]).Scan(&berita.Foto)
+	Helper.LogError(err)
+	os.Remove(Helper.FolderPath + berita.Foto)
+
+	res, err := database.Exec("delete from berita where id = ?", vars["id"])
+	Helper.LogError(err)
+
+	rowCnt, err := res.RowsAffected()
+	Helper.LogError(err)
+
+	if rowCnt != 0 {
+		status.Status = 200
+		status.Comment = "Berhasil Dihapus"
+		w.WriteHeader(http.StatusOK)
+	} else {
+		status.Status = 404
+		status.Comment = "data tidak tersedia"
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	json.NewEncoder(w).Encode(status)
+}
+
+func ReadBerita(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	vars := mux.Vars(r)
+
+	var (
+		responseReadBerita Model.ResponseReadBerita
+		readBerita         Model.ReadBerita
+	)
+
+	database := Database.ConfigDatabase()
+	defer database.Close()
+
+	err := database.QueryRow("select id, judul, isi, foto, terbaca, kategori_id, penulis_id from berita where id = ?", vars["id"]).Scan(&readBerita.Id, &readBerita.Judul, &readBerita.Isi, &readBerita.Foto, &readBerita.Terbaca, &readBerita.Kategori_id, &readBerita.Penulis_id)
+	Helper.LogError(err)
+
+	terbaca, err := strconv.Atoi(readBerita.Terbaca)
+	Helper.LogError(err)
+	hasil_baca := terbaca + 1
+
+	_, err = database.Exec("update berita set terbaca = ? where id = ?", hasil_baca, vars["id"])
+	Helper.LogError(err)
+
+	responseReadBerita.Status = 200
+	responseReadBerita.Message = "Berhasil Ditampilkan"
+	responseReadBerita.Data = readBerita
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(responseReadBerita)
 }
