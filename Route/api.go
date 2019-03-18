@@ -37,6 +37,12 @@ func ConfigRoute() {
 	router.HandleFunc("/suka/unlike", Controller.UnLikeSuka).Methods("POST")
 	router.HandleFunc("/suka/{id}/berita", Controller.SukaWhereBerita).Methods("GET")
 
+	router.HandleFunc("/komentar", Controller.Komentar).Methods("GET")
+	router.HandleFunc("/komentar", Controller.AddKomentar).Methods("POST")
+	router.HandleFunc("/komentar/{id}", Controller.UpdateKomentar).Methods("PATCH")
+	router.HandleFunc("/komentar/{id}", Controller.DeleteKomentar).Methods("DELETE")
+	router.HandleFunc("/komentar/{id}/berita", Controller.KomentarWhereBerita).Methods("GET")
+
 	router.Use(Middleware.Apikey)
 
 	log.Fatal(http.ListenAndServe(":1234", router))
