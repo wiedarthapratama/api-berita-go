@@ -29,6 +29,8 @@ func ConfigRoute() {
 	router.HandleFunc("/berita", Controller.Berita).Methods("GET")
 	router.HandleFunc("/berita", Controller.AddBerita).Methods("POST")
 	router.HandleFunc("/berita/{id}", Controller.UpdateBerita).Methods("PATCH")
+	router.HandleFunc("/berita/{id}", Controller.DeleteBerita).Methods("DELETE")
+	router.HandleFunc("/berita/{id}/read", Controller.ReadBerita).Methods("GET")
 
 	router.Use(Middleware.Apikey)
 
